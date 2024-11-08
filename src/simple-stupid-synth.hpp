@@ -37,6 +37,7 @@
 #include "midi-state-machine.hpp"
 #include "audio-target.hpp"
 #include <network-source.hpp>
+#include <ntp.hpp>
 
 class Simple_stupid_synth {
 public:
@@ -45,6 +46,7 @@ public:
   Simple_stupid_synth(Audio_target *const audio_target,
                       MIDI_state_machine *const midi_state_machine,
                       Network_source *const network_source,
+                      NTP_client *const ntp,
                       const uint8_t gpio_pin_activity_indicator);
   void main_loop();
 private:
@@ -53,6 +55,7 @@ private:
   Audio_target *const _audio_target;
   MIDI_state_machine *const _midi_state_machine;
   Network_source *const _network_source;
+  NTP_client *const _ntp;
   void synth_task();
 };
 

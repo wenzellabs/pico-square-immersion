@@ -25,11 +25,14 @@ add_executable(simple-stupid-synth
   src/wifi-stuff.cpp
   src/network-source.cpp
   src/TLV_registry.cpp
+  src/ntp.cpp
   )
 
 target_compile_definitions(simple-stupid-synth PRIVATE
   PICO_AUDIO_I2S_MONO_OUTPUT=0
   PICO_AUDIO_I2S_MONO_INPUT=0
+  PICO_AUDIO_I2S_DATA_PIN=9
+  PICO_AUDIO_I2S_CLOCK_PIN_BASE=10
   WIFI_SSID="$ENV{WIFI_SSID}"
   WIFI_PASS="$ENV{WIFI_PASS}"
   )
@@ -54,7 +57,7 @@ target_link_libraries(simple-stupid-synth
 
 pico_enable_stdio_uart(simple-stupid-synth 1)
 pico_enable_stdio_usb(simple-stupid-synth 0)
- 
+
 # create map/bin/hex file etc.
 pico_add_extra_outputs(simple-stupid-synth)
 

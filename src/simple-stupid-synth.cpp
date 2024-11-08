@@ -38,6 +38,7 @@
 #include "pico/stdlib.h"
 #include <wifi-stuff.hpp>
 #include <cstdio>
+#include "ntp.hpp"
 
 //#define USE_PWM_AUDIO
 
@@ -54,10 +55,12 @@ Simple_stupid_synth::
 Simple_stupid_synth(Audio_target *const audio_target,
                     MIDI_state_machine *const midi_state_machine,
                     Network_source *const network_source,
+                    NTP_client *const ntp,
                     const uint8_t gpio_pin_activity_indicator) :
   _is_stereo(audio_target->is_stereo()),
   _audio_target(audio_target), _midi_state_machine(midi_state_machine),
-  _network_source(network_source)
+  _network_source(network_source),
+  _ntp(ntp)
 {
   const uint32_t sample_freq = _audio_target->get_sample_freq();
   _midi_state_machine->init(sample_freq, gpio_pin_activity_indicator);
@@ -121,6 +124,7 @@ Simple_stupid_synth::main_loop()
     _midi_state_machine->tx_task();
     _midi_state_machine->rx_task();
     _network_source->rx_task();
+    _ntp->update_time();
     synth_task();
   }
 }
@@ -139,9 +143,9 @@ int main()
   audio_target.init(3);
 #else
   const uint8_t gpio_pin_i2s_clock_base =
-    PICO_AUDIO_I2S_CLOCK_PIN_BASE; // GPIO 26 (BLCK) + GPIO 27 (LRCLK)
+    PICO_AUDIO_I2S_CLOCK_PIN_BASE; // GPIO 10 (BLCK) + GPIO 11 (LRCLK)
   const uint8_t gpio_pin_i2s_data =
-    PICO_AUDIO_I2S_DATA_PIN; // GPIO 28 (DATA)
+    PICO_AUDIO_I2S_DATA_PIN; // GPIO 9 (DATA)
   I2S_audio_target audio_target(Simple_stupid_synth::DEFAULT_SAMPLE_FREQ,
                                 gpio_pin_i2s_clock_base, gpio_pin_i2s_data);
   audio_target.init();
@@ -149,11 +153,15 @@ int main()
 
   MIDI_state_machine midi_state_machine;
   Network_source network_source(&midi_state_machine);
+  NTP_client ntp;
+  network_source.set_ntp(&ntp);
+
   const uint8_t gpio_pin_activity_indicator =
     Simple_stupid_synth::GPIO_PIN_LED;
   Simple_stupid_synth simple_stupid_synth(&audio_target,
                                           &midi_state_machine,
                                           &network_source,
+                                          &ntp,
                                           gpio_pin_activity_indicator);
   simple_stupid_synth.main_loop();
   return 0;

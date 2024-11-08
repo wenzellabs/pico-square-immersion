@@ -10,7 +10,7 @@
 
 static struct udp_pcb *pcb = NULL;
 
-circular_buffer udp_buffer = { .data = {0}, .head = 0, .tail = 0, .count = 0 };
+circular_buffer8 udp_buffer = { .data = {0}, .head = 0, .tail = 0, .count = 0 };
 
 // fwd declaration fo udp rx callback
 void udp_receive_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port);
@@ -78,12 +78,12 @@ void udp_receive_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
         // firewall b) only allow small packets, TLV_MAX_PACKET_SIZE
         if (length <= TLV_MAX_PACKET_SIZE)
         {
-            if (udp_buffer.count < BUFFER_SIZE) {
+            if (udp_buffer.count < UDP_BUFFER_SIZE) {
                 // all firewalls passed, and still a free slot in our circlular buffer
                 memcpy(udp_buffer.data[udp_buffer.head], packet, length);
-                udp_buffer.head = (udp_buffer.head + 1) % BUFFER_SIZE;
+                udp_buffer.head = (udp_buffer.head + 1) % UDP_BUFFER_SIZE;
                 udp_buffer.count++;
-                if (udp_buffer.count > BUFFER_WATERMARK_50)
+                if (udp_buffer.count > UDP_BUFFER_WATERMARK_50)
                 {
                     warning |= INFO_WATERMARK;
                     watermark = udp_buffer.count;
@@ -104,7 +104,7 @@ void udp_receive_callback(void *arg, struct udp_pcb *pcb, struct pbuf *p, const 
     // log with interrupts enabled
     if (warning & INFO_WATERMARK)
     {
-        printf("INFO: buffer 50%% watermark reached (%d/%d)\n", watermark, BUFFER_SIZE);
+        printf("INFO: buffer 50%% watermark reached (%d/%d)\n", watermark, UDP_BUFFER_SIZE);
     }
     if (warning & WARNING_OVERFLOW)
     {

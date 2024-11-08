@@ -6,7 +6,7 @@ extern "C"
 #endif
 
 #include <tlv_header.h>
-#include <tlv_type.h>
+#include <generated_tlv.h>
 
 #define TLV_CB_FUNC void (*func)(tlv_packet_t *)
 #define TLV_MAX_CALLBACKS 16
