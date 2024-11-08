@@ -9,7 +9,7 @@ else
 fi
 mkdir -p build
 cd build
-export PICO_SDK_PATH="${HERE}/../pico-sdk"
-export PICO_EXTRAS_PATH="${HERE}/../pico-extras"
+export PICO_SDK_PATH="${HERE}/../../pico-sdk"
+export PICO_EXTRAS_PATH="${HERE}/../../pico-extras"
 cmake -Wdev ..
 make -j
