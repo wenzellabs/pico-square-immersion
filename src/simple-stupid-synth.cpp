@@ -39,11 +39,13 @@
 #include <wifi-stuff.hpp>
 #include <cstdio>
 #include "ntp.hpp"
+#include "display.h"
+#include "led.h"
 
 //#define USE_PWM_AUDIO
 
 const uint32_t
-Simple_stupid_synth::GPIO_PIN_LED = 2; // 25 is used for WiFi on pico_w
+Simple_stupid_synth::GPIO_PIN_LED = 4; // 25 is used for WiFi on pico_w
 
 const uint32_t
 Simple_stupid_synth::DEFAULT_SAMPLE_FREQ = 24000; // [HZ]
@@ -117,6 +119,37 @@ Simple_stupid_synth::synth_task()
   _audio_target->give_audio_buffer(audio_buffer);
 }
 
+#include "hardware/adc.h"
+
+void init_adc(void)
+{
+  adc_init();
+  adc_gpio_init(26);
+  adc_select_input(0);
+}
+
+#define ADC_THRESHOLD 0x20
+
+void adc_task(void)
+{
+  const float conversion_factor = 3.3f / (1 << 12);
+  static uint16_t last_result = 0;
+  uint16_t result = adc_read();
+
+  if ((result < last_result - ADC_THRESHOLD) ||
+      (result > last_result + ADC_THRESHOLD))
+  {
+    printf("pot: 0x%03x, voltage: %f V\n", result, result * conversion_factor);
+    last_result = result;
+
+    uint8_t r, g, b;
+    hue2rgb(result>>4, &r, &g, &b);
+    set_first_led(r, g, b);
+    update_leds();
+  }
+}
+
+
 void
 Simple_stupid_synth::main_loop()
 {
@@ -126,9 +159,26 @@ Simple_stupid_synth::main_loop()
     _network_source->rx_task();
     _ntp->update_time();
     synth_task();
+    adc_task();
   }
 }
 
+void display_wifi()
+{
+  memset(display_buffer, 0, SSD1306_BUF_LEN);
+  write_string(2, 0, "waiting for WiFi");
+  write_string(2, 8, "SSID " WIFI_SSID);
+  write_string(38, is_large_display()?56:24, "[" NICK "]");
+  render(&full_frame_area);
+}
+
+void display_waiting()
+{
+  memset(display_buffer, 0, SSD1306_BUF_LEN);
+  write_string(2, 16, "waiting for notes");
+  write_string(38, is_large_display()?56:24, "[" NICK "]");
+  render(&full_frame_area);
+}
 
 int main()
 {
@@ -151,10 +201,38 @@ int main()
   audio_target.init();
 #endif
 
+  init_display();
+  init_leds();
+  for (int i = 0; i < 4; i++)
+  {
+    set_led(  i, 0x04 + i*0x10, 0, 0);
+    set_led(7-i, 0x04 + i*0x10, 0, 0);
+  }
+  update_leds();
+  display_wifi();
+  init_adc();
+
   MIDI_state_machine midi_state_machine;
   Network_source network_source(&midi_state_machine);
   NTP_client ntp;
   network_source.set_ntp(&ntp);
+
+  if (network_source.has_wifi)
+  {
+    display_waiting();
+    for (int i = 0; i < 4; i++)
+    {
+      set_led(  i, 0, 0x04 + i*0x10, 0);
+      set_led(7-i, 0, 0x04 + i*0x10, 0);
+    }
+  }else{
+    for (int i = 0; i < 4; i++)
+    {
+      set_led(  i, 0x70 - i*0x20, 0, 0);
+      set_led(7-i, 0x70 - i*0x20, 0, 0);
+    }
+  }
+  update_leds();
 
   const uint8_t gpio_pin_activity_indicator =
     Simple_stupid_synth::GPIO_PIN_LED;

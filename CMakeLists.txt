@@ -25,7 +25,9 @@ add_executable(simple-stupid-synth
   src/wifi-stuff.cpp
   src/network-source.cpp
   src/TLV_registry.cpp
+  src/display.c
   src/ntp.cpp
+  src/led.c
   )
 
 target_compile_definitions(simple-stupid-synth PRIVATE
@@ -33,6 +35,8 @@ target_compile_definitions(simple-stupid-synth PRIVATE
   PICO_AUDIO_I2S_MONO_INPUT=0
   PICO_AUDIO_I2S_DATA_PIN=9
   PICO_AUDIO_I2S_CLOCK_PIN_BASE=10
+  I2C_SDA_PIN=12
+  I2C_SCL_PIN=13
   WIFI_SSID="$ENV{WIFI_SSID}"
   WIFI_PASS="$ENV{WIFI_PASS}"
   )
@@ -52,7 +56,10 @@ target_link_libraries(simple-stupid-synth
   pico_audio_i2s
   pico_audio_pwm
   pico_cyw43_arch_lwip_threadsafe_background
-#  pico_cyw43_arch_lwip_poll
+  #  pico_cyw43_arch_lwip_poll
+  hardware_i2c
+  hardware_spi
+  hardware_adc
   )
 
 pico_enable_stdio_uart(simple-stupid-synth 1)

@@ -33,6 +33,8 @@ public:
     void rx_task();
     void set_ntp(NTP_client *const ntp);
 
+    bool has_wifi;
+
 private:
     MIDI_state_machine *const _midi_state_machine;
     NTP_client *_ntp;
@@ -48,21 +50,26 @@ private:
     uint8_t _offbeat;
     uint8_t _scale_type;
 
+    char _artist[235];
+    char _title[235];
+
     void init_tlv(TLV_registry& registry);
 
     void process_udp_data();
     void play_note();
     void enqueue_note(tlv_packet_t *tp, uint8_t onoff);
-    void enqueue_note_sorted(tlv_type_note_t *new_note);
 
     void tlv_time(tlv_packet_t *tp);
     void note_on(tlv_packet_t *tp);
     void note_off(tlv_packet_t *tp);
+    void note_on_off(tlv_packet_t *tp);
     void beat(tlv_packet_t *tp);
     void start(tlv_packet_t *tp);
     void panic(tlv_packet_t *tp);
     void scale(tlv_packet_t *tp);
     void chord(tlv_packet_t *tp);
+    void artist(tlv_packet_t *tp);
+    void title(tlv_packet_t *tp);
 
     void chord_flavour0(tlv_packet_t *tp);
     void chord_flavour1(tlv_packet_t *tp);
@@ -74,6 +81,9 @@ private:
     void sort_notes(tlv_packet_t *tp);
     void chord_flavour6(tlv_packet_t *tp);
     void chord_flavour7(tlv_packet_t *tp);
+    void sort_notes_out2in(tlv_packet_t *tp);
+    void chord_flavour8(tlv_packet_t *tp);
+    void chord_flavour9(tlv_packet_t *tp);
 
     void chord_flavour000_b0rken(tlv_packet_t *tp);
     void chord_flavour001_b0rken(tlv_packet_t *tp);

@@ -37,6 +37,16 @@ typedef struct tlv_type_note_off_s
     uint8_t velocity;
 } PACKED tlv_type_note_off_t;
 
+#define TLV_TYPE_NOTE_ON_OFF 0x13
+typedef struct tlv_type_note_on_off_s
+{
+    uint64_t on;
+    uint64_t off;
+    uint8_t note;
+    uint8_t channel;
+    uint8_t velocity;
+} PACKED tlv_type_note_on_off_t;
+
 #define TLV_TYPE_PANIC 0x1f
 typedef struct tlv_type_panic_s
 {
@@ -101,6 +111,27 @@ typedef struct tlv_type_scale_s
     uint8_t root;
     tlv_enum_scale_type_t scale_type;
 } PACKED tlv_type_scale_t;
+
+#define TLV_TYPE_ARTIST 0x23
+typedef struct tlv_type_artist_s
+{
+    int8_t artist[234];
+} PACKED tlv_type_artist_t;
+
+#define TLV_TYPE_TITLE 0x24
+typedef struct tlv_type_title_s
+{
+    int8_t title[234];
+} PACKED tlv_type_title_t;
+
+#define TLV_TYPE_LED_COLOR 0x40
+typedef struct tlv_type_led_color_s
+{
+    uint8_t led;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+} PACKED tlv_type_led_color_t;
 
 
 #ifdef __cplusplus
