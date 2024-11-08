@@ -143,23 +143,21 @@ void
 MIDI_state_machine::consume_event_packet(const uint8_t *event_packet)
 {
   const uint8_t code_index_number = event_packet[0] & 0xf;
+
+  const uint8_t channel = event_packet[1] & 0xf;
+  const uint8_t pitch = event_packet[2] & 0x7f;
+  channel_status_t *channel_status = &_midi_status.channel_status[channel];
+  note_status_t *note_status = &channel_status->note_status[pitch];
+
   if (code_index_number == 0x9) {
     // note on
-    const uint8_t channel = event_packet[1] & 0xf;
-    const uint8_t pitch = event_packet[2] & 0x7f;
     const uint8_t velocity = event_packet[3] & 0x7f;
-    channel_status_t *channel_status = &_midi_status.channel_status[channel];
-    note_status_t *note_status = &channel_status->note_status[pitch];
     const uint8_t prev_velocity = note_status->velocity;
     note_status->velocity = velocity;
     add_to_osc_status(pitch, velocity - prev_velocity);
     gpio_put(_gpio_pin_activity_indicator, velocity > 0 ? 1 : 0);
   } else if (code_index_number == 0x8) {
     // note off
-    const uint8_t channel = event_packet[1] & 0xf;
-    const uint8_t pitch = event_packet[2] & 0x7f;
-    channel_status_t *channel_status = &_midi_status.channel_status[channel];
-    note_status_t *note_status = &channel_status->note_status[pitch];
     const uint8_t velocity = note_status->velocity;
     note_status->velocity = 0;
     add_to_osc_status(pitch, -velocity);

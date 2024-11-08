@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.18)
 
-# pull in PICO SDK (must be before project)
-include(pico_sdk_import.cmake)
+set(PICO_BOARD pico_w)
 
-# we also need PICO EXTRAS
-include(pico_extras_import.cmake)
+include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+include($ENV{PICO_EXTRAS_PATH}/external/pico_extras_import.cmake)
 
 project(simple-stupid-synth)
 
@@ -22,19 +21,24 @@ add_executable(simple-stupid-synth
   src/audio-target.cpp
   src/i2s-audio-target.cpp
   src/pwm-audio-target.cpp
-  src/usb_descriptors.c)
+  src/usb_descriptors.c
+  src/wifi-stuff.cpp
+  src/network-source.cpp
+  src/TLV_registry.cpp
+  )
 
 target_compile_definitions(simple-stupid-synth PRIVATE
   PICO_AUDIO_I2S_MONO_OUTPUT=0
-  PICO_AUDIO_I2S_MONO_INPUT=0)
+  PICO_AUDIO_I2S_MONO_INPUT=0
+  WIFI_SSID="$ENV{WIFI_SSID}"
+  WIFI_PASS="$ENV{WIFI_PASS}"
+  )
 
 target_include_directories(simple-stupid-synth PRIVATE
   src
   ../pico-sdk/lib/tinyusb/src
-  ../pico-sdk/lib/tinyusb/hw)
-
-# enable serial output via UART
-#pico_enable_stdio_uart(simple-stupid-synth 1)
+  ../pico-sdk/lib/tinyusb/hw
+  )
 
 # pull in common dependencies
 target_link_libraries(simple-stupid-synth
@@ -43,8 +47,14 @@ target_link_libraries(simple-stupid-synth
   tinyusb_device
   tinyusb_board
   pico_audio_i2s
-  pico_audio_pwm)
+  pico_audio_pwm
+  pico_cyw43_arch_lwip_threadsafe_background
+#  pico_cyw43_arch_lwip_poll
+  )
 
+pico_enable_stdio_uart(simple-stupid-synth 1)
+pico_enable_stdio_usb(simple-stupid-synth 0)
+ 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(simple-stupid-synth)
 

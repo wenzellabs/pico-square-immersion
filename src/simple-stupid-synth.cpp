@@ -33,13 +33,16 @@
 #include "simple-stupid-synth.hpp"
 #include "i2s-audio-target.hpp"
 #include "pwm-audio-target.hpp"
+#include <network-source.hpp>
 #include <math.h>
 #include "pico/stdlib.h"
+#include <wifi-stuff.hpp>
+#include <cstdio>
 
 //#define USE_PWM_AUDIO
 
 const uint32_t
-Simple_stupid_synth::GPIO_PIN_LED = 25;
+Simple_stupid_synth::GPIO_PIN_LED = 2; // 25 is used for WiFi on pico_w
 
 const uint32_t
 Simple_stupid_synth::DEFAULT_SAMPLE_FREQ = 24000; // [HZ]
@@ -50,9 +53,11 @@ Simple_stupid_synth::VOL_BITS = 8;
 Simple_stupid_synth::
 Simple_stupid_synth(Audio_target *const audio_target,
                     MIDI_state_machine *const midi_state_machine,
+                    Network_source *const network_source,
                     const uint8_t gpio_pin_activity_indicator) :
   _is_stereo(audio_target->is_stereo()),
-  _audio_target(audio_target), _midi_state_machine(midi_state_machine)
+  _audio_target(audio_target), _midi_state_machine(midi_state_machine),
+  _network_source(network_source)
 {
   const uint32_t sample_freq = _audio_target->get_sample_freq();
   _midi_state_machine->init(sample_freq, gpio_pin_activity_indicator);
@@ -115,13 +120,18 @@ Simple_stupid_synth::main_loop()
   for (;;) {
     _midi_state_machine->tx_task();
     _midi_state_machine->rx_task();
+    _network_source->rx_task();
     synth_task();
   }
 }
 
+
 int main()
 {
   stdio_init_all();
+
+  printf("\n\nmain()\n");
+
 #ifdef USE_PWM_AUDIO
   const uint8_t gpio_pin_pwm_mono = PICO_AUDIO_PWM_L_PIN; // GPIO 0 (PWM_L)
   PWM_audio_target audio_target(Simple_stupid_synth::DEFAULT_SAMPLE_FREQ,
@@ -136,11 +146,14 @@ int main()
                                 gpio_pin_i2s_clock_base, gpio_pin_i2s_data);
   audio_target.init();
 #endif
+
   MIDI_state_machine midi_state_machine;
+  Network_source network_source(&midi_state_machine);
   const uint8_t gpio_pin_activity_indicator =
-    Simple_stupid_synth::GPIO_PIN_LED; // GPIO 25 (LED)
+    Simple_stupid_synth::GPIO_PIN_LED;
   Simple_stupid_synth simple_stupid_synth(&audio_target,
                                           &midi_state_machine,
+                                          &network_source,
                                           gpio_pin_activity_indicator);
   simple_stupid_synth.main_loop();
   return 0;

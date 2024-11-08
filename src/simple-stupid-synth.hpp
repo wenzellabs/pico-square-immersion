@@ -36,6 +36,7 @@
 #include <inttypes.h>
 #include "midi-state-machine.hpp"
 #include "audio-target.hpp"
+#include <network-source.hpp>
 
 class Simple_stupid_synth {
 public:
@@ -43,6 +44,7 @@ public:
   static const uint32_t GPIO_PIN_LED;
   Simple_stupid_synth(Audio_target *const audio_target,
                       MIDI_state_machine *const midi_state_machine,
+                      Network_source *const network_source,
                       const uint8_t gpio_pin_activity_indicator);
   void main_loop();
 private:
@@ -50,6 +52,7 @@ private:
   const bool _is_stereo;
   Audio_target *const _audio_target;
   MIDI_state_machine *const _midi_state_machine;
+  Network_source *const _network_source;
   void synth_task();
 };
 

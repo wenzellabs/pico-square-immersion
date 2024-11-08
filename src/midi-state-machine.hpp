@@ -62,6 +62,7 @@ public:
   osc_status_t *get_osc_statuses();
   void rx_task();
   void tx_task();
+  void consume_event_packet(const uint8_t *event_packet);
 private:
   static const double OCTAVE_FREQ_RATIO;
   static const uint8_t NOTES_PER_OCTAVE;
@@ -78,7 +79,6 @@ private:
   void state_init();
   void led_init(const uint8_t gpio_pin_activity_indicator);
   void add_to_osc_status(const uint8_t pitch, const int8_t delta_velocity);
-  void consume_event_packet(const uint8_t *event_packet);
   void produce_tx_data(uint8_t *buffer,
                        __unused const size_t max_buffer_size,
                        size_t *const buffer_size);
