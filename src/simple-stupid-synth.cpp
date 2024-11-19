@@ -47,6 +47,9 @@
 const uint32_t
 Simple_stupid_synth::GPIO_PIN_LED = 4; // 25 is used for WiFi on pico_w
 
+const uint32_t MAGNETIC_NORTH = 6;
+const uint32_t MAGNETIC_SOUTH = 7;
+
 const uint32_t
 Simple_stupid_synth::DEFAULT_SAMPLE_FREQ = 24000; // [HZ]
 
@@ -149,6 +152,29 @@ void adc_task(void)
   }
 }
 
+void init_magnetic_sensor(void)
+{
+  gpio_init(MAGNETIC_NORTH);
+  gpio_init(MAGNETIC_SOUTH);
+  gpio_pull_down(MAGNETIC_NORTH);
+  gpio_pull_down(MAGNETIC_SOUTH);
+  gpio_set_dir(MAGNETIC_NORTH, GPIO_IN);
+  gpio_set_dir(MAGNETIC_SOUTH, GPIO_IN);
+}
+
+void magnetic_task(void)
+{
+  if (!gpio_get(MAGNETIC_NORTH))
+  {
+    set_first_led(0xff, 0x00, 0x00);
+    update_leds();
+  }
+  if (!gpio_get(MAGNETIC_SOUTH))
+  {
+    set_first_led(0x00, 0xff, 0x00);
+    update_leds();
+  }
+}
 
 void
 Simple_stupid_synth::main_loop()
@@ -160,6 +186,7 @@ Simple_stupid_synth::main_loop()
     _ntp->update_time();
     synth_task();
     adc_task();
+    magnetic_task();
   }
 }
 
