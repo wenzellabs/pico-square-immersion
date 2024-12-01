@@ -197,7 +197,7 @@ void Network_source::tlv_time(tlv_packet_t *tp)
 
   tlv_type_time_t *p = (tlv_type_time_t *)tp->payload;
   _ntp->powerup_time = p->us_since_1900 - get_absolute_time();
-  printf("his master's clock is strikes %llu microseconds after 1900\n", p->us_since_1900);
+  printf("his master's clock strikes %llu microseconds after 1900\n", p->us_since_1900);
 }
 
 void Network_source::enqueue_note(tlv_packet_t *tp, uint8_t onoff)
