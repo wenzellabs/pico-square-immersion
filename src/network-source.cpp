@@ -193,9 +193,11 @@ void Network_source::play_note()
 
 void Network_source::tlv_time(tlv_packet_t *tp)
 {
+  _ntp->run = false; // disable NTP in case we use offline installation
+
   tlv_type_time_t *p = (tlv_type_time_t *)tp->payload;
-  int64_t delta = _ntp->powerup_time + get_absolute_time() - p->us_since_1900;
-  printf("his master's clock is off by %llu\n", delta);
+  _ntp->powerup_time = p->us_since_1900 - get_absolute_time();
+  printf("his master's clock is strikes %llu microseconds after 1900\n", p->us_since_1900);
 }
 
 void Network_source::enqueue_note(tlv_packet_t *tp, uint8_t onoff)

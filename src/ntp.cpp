@@ -17,6 +17,7 @@ NTP_client::NTP_client() : _state(STATE_BOOTUP), timeout_alarm(0) {
     udp_recv(ntp_pcb, ntp_recv, this);
 
     next_update_time = make_timeout_time_ms(NTP_UPDATE_PERIOD);
+    run = true;
 }
 
 NTP_client::~NTP_client()
@@ -33,6 +34,7 @@ NTP_client::~NTP_client()
 // Main function to be called frequently
 void NTP_client::update_time()
 {
+    if (!run) return;
     if (_state == STATE_BOOTUP)
     {
         static int count = 3;
@@ -46,6 +48,7 @@ void NTP_client::update_time()
 
 void NTP_client::send_request()
 {
+    if (!run) return;
     // Prepare NTP request payload (48 bytes, most set to 0)
     cyw43_arch_lwip_begin();
     struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, 48, PBUF_RAM);

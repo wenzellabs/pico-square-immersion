@@ -50,6 +50,7 @@ public:
 
     void update_time();  // call from time to time to manage NTP requests and responses
     uint64_t powerup_time;
+    bool run;
 private:
     static const uint32_t NTP_UPDATE_PERIOD         =  30 * 1000;  // 30 seconds
     static const uint32_t NTP_UPDATE_PERIOD_BOOTUP  =   1 * 1000;  //  1 second
