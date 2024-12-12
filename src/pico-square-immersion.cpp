@@ -30,7 +30,7 @@
  * Author's web site: www.juergen-reuter.de
  */
 
-#include "simple-stupid-synth.hpp"
+#include "pico-square-immersion.hpp"
 #include "i2s-audio-target.hpp"
 #include "pwm-audio-target.hpp"
 #include <network-source.hpp>

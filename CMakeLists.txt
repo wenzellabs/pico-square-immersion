@@ -5,7 +5,7 @@ set(PICO_BOARD pico_w)
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 include($ENV{PICO_EXTRAS_PATH}/external/pico_extras_import.cmake)
 
-project(simple-stupid-synth)
+project(pico-square-immersion)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -15,8 +15,8 @@ add_compile_options(-Wall -Wextra -Wnull-dereference)
 # initialize the Pico SDK
 pico_sdk_init()
 
-add_executable(simple-stupid-synth
-  src/simple-stupid-synth.cpp
+add_executable(pico-square-immersion
+  src/pico-square-immersion.cpp
   src/midi-state-machine.cpp
   src/audio-target.cpp
   src/i2s-audio-target.cpp
@@ -30,7 +30,7 @@ add_executable(simple-stupid-synth
   src/led.c
   )
 
-target_compile_definitions(simple-stupid-synth PRIVATE
+target_compile_definitions(pico-square-immersion PRIVATE
   PICO_AUDIO_I2S_MONO_OUTPUT=0
   PICO_AUDIO_I2S_MONO_INPUT=0
   PICO_AUDIO_I2S_DATA_PIN=9
@@ -41,14 +41,14 @@ target_compile_definitions(simple-stupid-synth PRIVATE
   WIFI_PASS="$ENV{WIFI_PASS}"
   )
 
-target_include_directories(simple-stupid-synth PRIVATE
+target_include_directories(pico-square-immersion PRIVATE
   src
   ../pico-sdk/lib/tinyusb/src
   ../pico-sdk/lib/tinyusb/hw
   )
 
 # pull in common dependencies
-target_link_libraries(simple-stupid-synth
+target_link_libraries(pico-square-immersion
   pico_stdlib
   pico_multicore
   tinyusb_device
@@ -62,11 +62,11 @@ target_link_libraries(simple-stupid-synth
   hardware_adc
   )
 
-pico_enable_stdio_uart(simple-stupid-synth 1)
-pico_enable_stdio_usb(simple-stupid-synth 0)
+pico_enable_stdio_uart(pico-square-immersion 1)
+pico_enable_stdio_usb(pico-square-immersion 0)
 
 # create map/bin/hex file etc.
-pico_add_extra_outputs(simple-stupid-synth)
+pico_add_extra_outputs(pico-square-immersion)
 
 # Local variables:
 #   mode: cmake
