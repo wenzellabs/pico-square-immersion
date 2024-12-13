@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
 
-set(PICO_BOARD pico_w)
+if(NOT DEFINED PICO_BOARD)
+  set(PICO_BOARD pico_w)
+endif()
 
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 include($ENV{PICO_EXTRAS_PATH}/external/pico_extras_import.cmake)
@@ -12,7 +14,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 add_compile_options(-Wall -Wextra -Wnull-dereference)
 
-# initialize the Pico SDK
 pico_sdk_init()
 
 add_executable(pico-square-immersion
@@ -67,8 +68,3 @@ pico_enable_stdio_usb(pico-square-immersion 0)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(pico-square-immersion)
-
-# Local variables:
-#   mode: cmake
-#   coding: utf-8
-# End:
