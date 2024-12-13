@@ -228,6 +228,7 @@ int main()
   audio_target.init();
 #endif
 
+  init_magnetic_sensor();
   init_display();
   init_leds();
   for (int i = 0; i < 4; i++)
